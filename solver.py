@@ -48,7 +48,7 @@ class Solver(LightningModule):
             "test":  StatsMeter()
         })
 
-        wandb.init(project=self.hp.project, name=hp.exp_name, config=vars(hp), tags=[hp.tag])
+        # wandb.init(project=self.hp.project, name=hp.exp_name, config=vars(hp), tags=[hp.tag])
         self.build_model()
 
     def prepare_data(self):
@@ -57,6 +57,8 @@ class Solver(LightningModule):
             train, val, test = TrainTestDataset.get_datasets(path=self.hp.timit_path)
         elif "buckeye" in self.hp.data:
             train, val, test = TrainValTestDataset.get_datasets(path=self.hp.buckeye_path, percent=self.hp.buckeye_percent)
+        elif "buchwald" in self.hp.data:
+            train, val, test = TrainValTestDataset.get_datasets(path=self.hp.buchwald_path, percent=self.hp.buchwald_percent)
         else:
             raise Exception("no such training data!")
 
@@ -187,7 +189,7 @@ class Solver(LightningModule):
         for k, v in metrics.items():
             print(f"\t{k:<30} -- {v}")
         line()
-        wandb.log(metrics)
+        # wandb.log(metrics)
 
         output = OrderedDict({
             'log': metrics

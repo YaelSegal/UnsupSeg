@@ -1,0 +1,13 @@
+*.pyc
+__pycache__/
+.Python
+venv/
+*.log
+*log.txt
+.vscode/
+.DS_Store
+*.pth
+*.t7
+*.wav
+*.out
+runs/*

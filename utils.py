@@ -6,7 +6,7 @@ import time
 from scipy.signal import find_peaks
 import wandb
 from tqdm import tqdm
-
+from textgrid import *
 
 def replicate_first_k_frames(x, k, dim):
     return torch.cat([x.index_select(dim=dim, index=torch.LongTensor([0] * k).to(x.device)), x], dim=dim)
@@ -74,7 +74,9 @@ class PrecisionRecallMetric:
         self.gt_counter = 0
         self.eps = 1e-5
         self.data = []
-        self.tolerance = 2
+        # self.tolerance = 2
+        # self.tolerance = 4
+        self.tolerance = 1
         self.prominence_range = np.arange(0, 0.15, 0.01)
         self.width_range = [None, 1]
         self.distance_range = [None, 1]
@@ -196,3 +198,17 @@ def max_min_norm(x):
 
 def line():
     print(90 * "-")
+
+
+def create_textgrid(preds, maxTime, out):
+    textgrid = TextGrid()
+    pred_tier = IntervalTier("preds")
+    start = 0
+    for idx, peak in enumerate(preds):
+        pred_tier.add(start, peak, "part {}".format(idx))
+        start = peak
+    if start < maxTime:
+        pred_tier.add(start, maxTime, "part {}".format(idx+1))
+    
+    textgrid.append(pred_tier)
+    textgrid.write(out)

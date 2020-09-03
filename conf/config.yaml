@@ -1,17 +1,20 @@
 hydra:
   run:
-    dir: /data/felix/runs/unsupervised_segmentor/${now:%Y-%m-%d_%H-%M-%S}-${exp_name}
+    dir: /home/mlspeech/segalya/PhDprojects/UnsupSeg/runs/${now:%Y-%m-%d_%H-%M-%S}-${exp_name}
 
 # DATA
 libri_path: /data/felix/datasets/librispeech
 buckeye_path: /data/felix/datasets/buckeye_processed_by_speaker_balanced
 timit_path: /data/felix/datasets/timit
+buchwald_path: /data/segalya/ddk/UnsupSeg/buchwald_proccess
 libri_subset: train-clean-100
 libri_percent: 1.0
 buckeye_percent: 1.0
+buchwald_percent: 1.0
 val_ratio: 0.1  # ratio of validation set
-data: timit
-dataloader_n_workers: 10
+data: buchwald
+# data: timit
+dataloader_n_workers: 0
 
 # MODEL
 cosine_coef: 1.0  # cosine similarity coefficient
@@ -32,7 +35,8 @@ exp_name: default
 project: unsupervised_segmentor
 ckpt: null
 dev_run: false  # fast debug run
-val_check_interval: 0.2  # how often a validation epoch is run
+# val_check_interval: 0.2  # how often a validation epoch is run
+val_check_interval:  0.4  # how often a validation epoch is run
 overfit_pct: 1
 seed: 100
 early_stop_metric: val_max_rval
@@ -44,6 +48,6 @@ momentum: 0.9
 lr: 0.0002
 lr_anneal_gamma: 1.0
 lr_anneal_step: 1000
-epochs: 200
+epochs: 5
 grad_clip: 0.5
 batch_size: 8

@@ -38,7 +38,8 @@ def collate_fn_padd(batch):
 
 
 def spectral_size(wav_len):
-    layers = [(10,5,0), (8,4,0), (4,2,0), (4,2,0), (4,2,0)]
+    # layers = [(10,5,0), (8,4,0), (4,2,0), (4,2,0), (4,2,0)]
+    layers = [(10,5,0), (8,4,0), (4,2,0), (4,2,0), (4,1,0)]
     for kernel, stride, padding in layers:
         wav_len = math.floor((wav_len + 2*padding - 1*(kernel-1) - 1)/stride + 1)
     return wav_len

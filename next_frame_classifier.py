@@ -17,7 +17,23 @@ class NextFrameClassifier(nn.Module):
         Z_DIM = hp.z_dim
         LS = hp.latent_dim if hp.latent_dim != 0 else Z_DIM
 
-        self.enc = nn.Sequential(
+        # self.enc = nn.Sequential(
+        #     nn.Conv1d(1, LS, kernel_size=10, stride=5, padding=0, bias=False),
+        #     nn.BatchNorm1d(LS),
+        #     nn.LeakyReLU(),
+        #     nn.Conv1d(LS, LS, kernel_size=8, stride=4, padding=0, bias=False),
+        #     nn.BatchNorm1d(LS),
+        #     nn.LeakyReLU(),
+        #     nn.Conv1d(LS, LS, kernel_size=4, stride=2, padding=0, bias=False),
+        #     nn.BatchNorm1d(LS),
+        #     nn.LeakyReLU(),
+        #     nn.Conv1d(LS, LS, kernel_size=4, stride=2, padding=0, bias=False),
+        #     nn.BatchNorm1d(LS),
+        #     nn.LeakyReLU(),
+        #     nn.Conv1d(LS, Z_DIM, kernel_size=4, stride=2, padding=0, bias=False),
+        #     LambdaLayer(lambda x: x.transpose(1,2)),
+        # )
+        self.enc1 = nn.Sequential(
             nn.Conv1d(1, LS, kernel_size=10, stride=5, padding=0, bias=False),
             nn.BatchNorm1d(LS),
             nn.LeakyReLU(),
@@ -30,7 +46,7 @@ class NextFrameClassifier(nn.Module):
             nn.Conv1d(LS, LS, kernel_size=4, stride=2, padding=0, bias=False),
             nn.BatchNorm1d(LS),
             nn.LeakyReLU(),
-            nn.Conv1d(LS, Z_DIM, kernel_size=4, stride=2, padding=0, bias=False),
+            nn.Conv1d(LS, Z_DIM, kernel_size=4, stride=1, padding=0, bias=False),
             LambdaLayer(lambda x: x.transpose(1,2)),
         )
         print("learning features from raw wav")
@@ -66,8 +82,13 @@ class NextFrameClassifier(nn.Module):
         device = spect.device
 
         # wav => latent z
-        z = self.enc(spect.unsqueeze(1))
-        
+        # z = self.enc(spect.unsqueeze(1))
+
+        # z = spect.unsqueeze(1)
+        # for m in self.enc1.children():
+        #     z = m(z)
+        z = self.enc1(spect.unsqueeze(1))
+
         preds = defaultdict(list)
         for i, t in enumerate(self.pred_steps):  # predict for steps 1...t
             pos_pred = self.score(z[:, :-t], z[:, t:])  # score for positive frame
@@ -98,15 +119,4 @@ class NextFrameClassifier(nn.Module):
             loss += -out.mean()
         return loss
 
-@hydra.main(config_path='conf/config.yaml', strict=False)
-def main(cfg):
-    ds, _, _ = TrainTestDataset.get_datasets(cfg.timit_path)
-    spect, seg, phonemes, length, fname = ds[0]
-    spect = spect.unsqueeze(0)
 
-    model = NextFrameClassifier(cfg)
-    out = model(spect, length)
-
-
-if __name__ == "__main__":
-    main()
